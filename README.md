@@ -1,1 +1,1 @@
-# lock-your-token
+# Loyotos - Lock Your Tokens
