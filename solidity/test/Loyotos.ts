@@ -6,6 +6,12 @@ import { ContractTransaction } from '@ethersproject/contracts';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
+const sleep = (ms: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 describe('Loyotos', () => {
   let loyotosContract: Loyotos,
     owner: SignerWithAddress,
@@ -32,6 +38,8 @@ describe('Loyotos', () => {
   });
 
   describe('Create Envelope', () => {
+    const envelopeId = 0;
+
     beforeEach(async () => {
       [owner, secondAccount] = await ethers.getSigners();
 
@@ -40,16 +48,67 @@ describe('Loyotos', () => {
 
       transaction = await loyotosContract.connect(owner).createEnvelope(lockEnd);
       await transaction.wait();
-    })
+    });
 
     it('creates new envelope', async () => {
-      expect(await loyotosContract.envelopesCount()).to.be.equal(1);
+      expect(await loyotosContract.envelopesCount()).to.be.equal(envelopeId + 1);
     });
     it('has correct owner', async () => {
-      expect((await loyotosContract.envelopes(0)).owner).to.be.equal(owner.address);
+      expect((await loyotosContract.envelopes(envelopeId)).owner).to.be.equal(owner.address);
     });
     it('has correct lock end', async () => {
-      expect((await loyotosContract.envelopes(0)).lockEnd).to.be.equal(lockEnd);
+      expect((await loyotosContract.envelopes(envelopeId)).lockEnd).to.be.equal(lockEnd);
+    });
+  });
+
+  describe('Pay Envelope', () => {
+    const envelopeId = 0;
+    const amountEth = 1;
+    const amountWei = ethers.utils.parseEther(amountEth.toString());
+
+    beforeEach(async () => {
+      [owner, secondAccount] = await ethers.getSigners();
+
+      const Loyotos = await ethers.getContractFactory('Loyotos');
+      loyotosContract = await Loyotos.deploy();
+
+      transaction = await loyotosContract.connect(owner).createEnvelope(lockEnd);
+      await transaction.wait();
+    });
+
+    it('has zero value', async () => {
+      expect((await loyotosContract.envelopes(envelopeId)).weiAmount).to.equal(0);
+    });
+    it(`has ${amountEth} eth`, async () => {
+      transaction = await loyotosContract.sendEthToEnvelope(envelopeId, { value: amountWei });
+      await transaction.wait();
+      expect((await loyotosContract.envelopes(envelopeId)).weiAmount).to.equal(amountWei);
+    });
+  });
+
+  describe('Withdraw Envelope', () => {
+    const envelopeId = 0;
+    const amountEth = 1;
+    const amountWei = ethers.utils.parseEther(amountEth.toString());
+
+    beforeEach(async () => {
+      [owner, secondAccount] = await ethers.getSigners();
+
+      const Loyotos = await ethers.getContractFactory('Loyotos');
+      loyotosContract = await Loyotos.deploy();
+
+      transaction = await loyotosContract.connect(owner).createEnvelope(lockEnd);
+      await transaction.wait();
+    });
+
+    it('withdraws', async () => {
+
+    });
+    it('rejects non-owner', async () => {
+
+    });
+    it('rejects altery withdrawn', async () => {
+      
     });
   });
 });

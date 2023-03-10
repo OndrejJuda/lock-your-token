@@ -5,31 +5,41 @@ import "hardhat/console.sol";
 
 contract Loyotos {
     struct Envelope {
-      uint256 ethAmount;
-      address owner;
-      uint64 lockEnd;
+        uint256 weiAmount;
+        address payable owner;
+        uint64 lockEnd;
+        bool isWithdrawn;
     }
 
     uint public envelopesCount = 0;
     mapping(uint => Envelope) public envelopes;
 
     event EnvelopeCreated();
-    event EnvelopeUnlocked();
+    event EnvelopeWithdrawn();
     event FundsDeposited();
 
     error NotEnvelopeOwner();
     error Locked();
+    error AlreadyWithdrawn();
 
     modifier onlyEnvelopeOwner(address _owner, uint _id) {
-      if (_owner != envelopes[_id].owner) revert NotEnvelopeOwner();
-      _;
+        if (_owner != envelopes[_id].owner) revert NotEnvelopeOwner();
+        _;
     }
 
     constructor() {}
 
     function createEnvelope(uint64 _lockEnd) external {
-      Envelope memory newEnvelope = Envelope(0, msg.sender, _lockEnd);
-      envelopes[envelopesCount] = newEnvelope;
-      ++envelopesCount;
+        Envelope memory newEnvelope = Envelope(0, payable(msg.sender), _lockEnd, false);
+        envelopes[envelopesCount] = newEnvelope;
+        ++envelopesCount;
     }
+
+    function sendEthToEnvelope(uint _id) external payable {
+        Envelope storage envelope = envelopes[_id];
+        if (envelope.isWithdrawn) revert AlreadyWithdrawn();
+        envelope.weiAmount += msg.value;
+    }
+
+    function withdraw(uint _id) external onlyEnvelopeOwner(msg.sender, _id) {}
 }
