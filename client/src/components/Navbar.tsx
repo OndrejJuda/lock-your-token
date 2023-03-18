@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppDispatch } from '@/hooks';
 import { IoMdAddCircleOutline } from 'react-icons/io';
 import { toggleShowNew } from '@/store/appSlice';
@@ -8,7 +8,7 @@ const Navbar = () => {
 
   return (
     <nav className='flex flex-col'>
-      <IoMdAddCircleOutline 
+      <IoMdAddCircleOutline
         className='text-3xl transition hover:scale-125 cursor-pointer text-violet-300'
         onClick={() => dispatch(toggleShowNew())}
       />

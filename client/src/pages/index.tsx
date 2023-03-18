@@ -1,11 +1,20 @@
+import { useEffect } from 'react';
 import { Header, NewEnvelope, ExistingEnvelopes, Navbar } from '@/components';
-import { useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Inter } from 'next/font/google';
+import { MetaMaskInpageProvider } from '@metamask/providers';
+import { setEthereum } from '@/store/appSlice';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-  const showNew = useAppSelector((state) => state.app.showNew);
+  const dispatch = useAppDispatch();
+  const { showNew } = useAppSelector((state) => state.app);
+
+  useEffect(() => {
+    const ethereum: MetaMaskInpageProvider | undefined = window.ethereum;
+    dispatch(setEthereum(ethereum && ethereum.isMetaMask ? ethereum : null));
+  }, []);
 
   return (
     <div className='bg-slate-900 text-violet-50 min-h-screen max-h-screen flex flex-col'>

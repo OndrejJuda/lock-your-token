@@ -4,6 +4,7 @@ import { IEnvelope } from '@/interfaces';
 
 interface UserState {
   envelopes: IEnvelope[];
+  address?: string;
 }
 
 const initialState: UserState = {
@@ -19,10 +20,13 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    setAddress: (state, action: PayloadAction<string>) => {
+      state.address = action.payload;
+    },
     addEnvelope: (state, action: PayloadAction<IEnvelope>) => {
       (state.envelopes as any[]).push(action.payload);
     },
-    updateEnvelope: (state, action: PayloadAction<{index: number, data: IEnvelope}>) => {
+    updateEnvelope: (state, action: PayloadAction<{ index: number, data: IEnvelope }>) => {
       (state.envelopes as any[])[action.payload.index] = action.payload.data;
     },
   },
@@ -31,5 +35,5 @@ export const userSlice = createSlice({
 // Other code such as selectors can use the imported `RootState` type
 // export const selectCount = (state: RootState) => state.counter.value
 
-export const { addEnvelope, updateEnvelope } = userSlice.actions;
+export const { addEnvelope, updateEnvelope, setAddress } = userSlice.actions;
 export default userSlice.reducer;
