@@ -2,25 +2,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './store';
 
 interface AppState {
-  showExisting: boolean;
+  showNew: boolean;
 }
 
 const initialState: AppState = {
-  showExisting: true,
+  showNew: false,
 };
 
 export const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    toggleShowExisting: (state) => {
-      state.showExisting = !state.showExisting;
+    toggleShowNew: (state) => {
+      state.showNew = !state.showNew;
     },
-    setShowExisting: (state, action: PayloadAction<boolean>) => {
-      state.showExisting = action.payload;
+    setShowNew: (state, action: PayloadAction<boolean>) => {
+      state.showNew = action.payload;
     },
   }
 });
 
-export const { toggleShowExisting, setShowExisting } = appSlice.actions;
+export const { toggleShowNew, setShowNew } = appSlice.actions;
 export default appSlice.reducer;
