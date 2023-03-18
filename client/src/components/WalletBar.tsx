@@ -15,7 +15,7 @@ const WalletBar = () => {
 
   const connectHandler = async () => {
     try {
-      const response = await ethereum?.request({ method: 'eth_requestAccounts' });
+      await ethereum?.request({ method: 'eth_requestAccounts' });
       const accounts = await ethereum?.request({ method: 'eth_accounts' });
       let account: string | undefined;
       if (typeof accounts === 'string') {

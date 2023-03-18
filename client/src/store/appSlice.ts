@@ -4,12 +4,11 @@ import { MetaMaskInpageProvider } from "@metamask/providers";
 
 interface AppState {
   showNew: boolean;
-  ethereum: MetaMaskInpageProvider | undefined | null;
+  ethereum?: MetaMaskInpageProvider | null;
 }
 
 const initialState: AppState = {
   showNew: false,
-  ethereum: undefined,
 };
 
 export const appSlice = createSlice({
@@ -17,7 +16,8 @@ export const appSlice = createSlice({
   initialState,
   reducers: {
     setEthereum: (state, action: PayloadAction<MetaMaskInpageProvider | null>) => {
-      state.ethereum = action.payload;
+      const ethereum = action.payload;
+      state.ethereum = ethereum;
     },
     toggleShowNew: (state) => {
       state.showNew = !state.showNew;

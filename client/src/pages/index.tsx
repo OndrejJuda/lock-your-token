@@ -4,17 +4,41 @@ import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Inter } from 'next/font/google';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { setEthereum } from '@/store/appSlice';
+import { getWeb3, CONTRACT_ADDRESS, getEnvelopes } from '@/utils';
+import { ethers } from 'ethers';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { showNew } = useAppSelector((state) => state.app);
+  const { showNew, ethereum } = useAppSelector((state) => state.app);
 
   useEffect(() => {
     const ethereum: MetaMaskInpageProvider | undefined = window.ethereum;
     dispatch(setEthereum(ethereum && ethereum.isMetaMask ? ethereum : null));
   }, []);
+
+  useEffect(() => {
+    if (!ethereum) return;
+    console.log('\nuse effect with ethereum');
+    ethereum.on('accountsChanged', accountChangedHandler);
+
+    const { provider, contract } = getWeb3(ethereum as unknown as ethers.providers.ExternalProvider);
+
+    getEnvelopes(ethereum);
+    
+
+    return () => {
+    }
+  }, [ethereum]);
+
+  const accountChangedHandler = async (input: any) => {
+    console.log('\naccounts changed');
+
+    const accounts = input as string[];
+    console.log('accounts:', accounts);
+    console.log(process.env.NEXT_PUBLIC_LOYOTOS_CONTRACT_ADDRESS);
+  }
 
   return (
     <div className='bg-slate-900 text-violet-50 min-h-screen max-h-screen flex flex-col'>
