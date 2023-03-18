@@ -1,10 +1,11 @@
 import { Navbar, NewEnvelope, ExistingEnvelopes, ModeSwitcher } from '@/components';
+import { useAppSelector } from '@/hooks';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-  const isNew = false;
+  const showExisting = useAppSelector((state) => state.app.showExisting);
 
   return (
     <>
@@ -13,12 +14,12 @@ export default function Home() {
         <div>
           <ModeSwitcher />
           {
-            isNew
+            showExisting
               ? (
-                <NewEnvelope />
+                <ExistingEnvelopes />
               )
               : (
-                <ExistingEnvelopes />
+                <NewEnvelope />
               )
           }
         </div>
