@@ -4,7 +4,7 @@ import { Button } from './';
 import { setAddress } from '@/store/userSlice';
 import { MdContentCopy } from 'react-icons/md';
 import { BiLike } from 'react-icons/bi';
-import { sleep } from '@/utils';
+import { connectHandler, sleep } from '@/utils';
 import Blockies from 'react-blockies';
 
 const WalletBar = () => {
@@ -12,27 +12,6 @@ const WalletBar = () => {
   const dispatch = useAppDispatch();
   const { ethereum } = useAppSelector((state) => state.app);
   const { address } = useAppSelector((state) => state.user);
-
-  const connectHandler = async () => {
-    try {
-      await ethereum?.request({ method: 'eth_requestAccounts' });
-      const accounts = await ethereum?.request({ method: 'eth_accounts' });
-      let account: string | undefined;
-      if (typeof accounts === 'string') {
-        account = accounts;
-      } else if (Array.isArray(accounts) && accounts.length > 0) {
-        account = accounts[0];
-      }
-
-      if (account) {
-        dispatch(setAddress(account));
-      } else {
-
-      }
-    } catch (error) {
-
-    }
-  }
 
   const copyHandler = async () => {
     if (!address) return;
@@ -81,7 +60,7 @@ const WalletBar = () => {
           <div className='py-2'>
             {
               ethereum && (
-                <Button onClick={connectHandler}>Connect</Button>
+                <Button onClick={() => connectHandler(ethereum, dispatch)}>Connect</Button>
               )
             }
             {

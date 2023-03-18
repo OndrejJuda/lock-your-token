@@ -21,6 +21,11 @@ describe('Loyotos', () => {
   const waitSeconds = 20;
   const lockEnd = new Date().setSeconds(new Date().getSeconds() + waitSeconds);
   const lockEndSeconds = +(lockEnd / 1000).toFixed(0);
+  
+  const envelopeId = 0;
+  const amountEth = 1;
+  const amountWei = ethers.utils.parseEther(amountEth.toString());
+  const title = 'Retirement';
 
   describe('Deployment', () => {
     beforeEach(async () => {
@@ -39,15 +44,13 @@ describe('Loyotos', () => {
   });
 
   describe('Create Envelope', () => {
-    const envelopeId = 0;
-
     beforeEach(async () => {
       [owner, secondAccount] = await ethers.getSigners();
 
       const Loyotos = await ethers.getContractFactory('Loyotos');
       loyotosContract = await Loyotos.deploy();
 
-      transaction = await loyotosContract.connect(owner).createEnvelope(lockEndSeconds);
+      transaction = await loyotosContract.connect(owner).createEnvelope(lockEndSeconds, title);
       await transaction.wait();
     });
 
@@ -60,20 +63,27 @@ describe('Loyotos', () => {
     it('has correct lock end', async () => {
       expect((await loyotosContract.envelopes(envelopeId)).lockEnd).to.be.equal(lockEndSeconds);
     });
+    it('has correct title', async () => {
+      expect((await loyotosContract.envelopes(envelopeId)).title).to.be.equal(title);
+    });
+    it('increased envelopes count by owner', async () => {
+      expect(await loyotosContract.envelopesCountByOwner(owner.address)).to.be.equal(1);
+    });
+    it('returns owner envelopes', async () => {
+      const envelopes = await loyotosContract.getEnvelopesByOwner(owner.address);
+      expect(envelopes.length).to.be.equal(1);
+      expect(envelopes[0].owner).to.be.equal(owner.address);
+    })
   });
 
   describe('Pay Envelope', () => {
-    const envelopeId = 0;
-    const amountEth = 1;
-    const amountWei = ethers.utils.parseEther(amountEth.toString());
-
     beforeEach(async () => {
       [owner, secondAccount] = await ethers.getSigners();
 
       const Loyotos = await ethers.getContractFactory('Loyotos');
       loyotosContract = await Loyotos.deploy();
 
-      transaction = await loyotosContract.connect(owner).createEnvelope(lockEndSeconds);
+      transaction = await loyotosContract.connect(owner).createEnvelope(lockEndSeconds, title);
       await transaction.wait();
     });
 
@@ -88,17 +98,13 @@ describe('Loyotos', () => {
   });
 
   describe('Withdraw Envelope', () => {
-    const envelopeId = 0;
-    const amountEth = 1;
-    const amountWei = ethers.utils.parseEther(amountEth.toString());
-
     beforeEach(async () => {
       [owner, secondAccount] = await ethers.getSigners();
 
       const Loyotos = await ethers.getContractFactory('Loyotos');
       loyotosContract = await Loyotos.deploy();
 
-      transaction = await loyotosContract.connect(owner).createEnvelope(lockEndSeconds);
+      transaction = await loyotosContract.connect(owner).createEnvelope(lockEndSeconds, title);
       await transaction.wait();
 
       transaction = await loyotosContract.sendEthToEnvelope(envelopeId, { value: amountWei });

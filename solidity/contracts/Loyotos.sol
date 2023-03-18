@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import "hardhat/console.sol";
+import "../node_modules/hardhat/console.sol";
 
 contract Loyotos {
     struct Envelope {
         uint256 weiAmount;
-        address payable owner;
         uint64 lockEnd;
+        address payable owner;
         bool isWithdrawn;
+        string title;
     }
 
     uint public envelopesCount = 0;
     mapping(uint => Envelope) public envelopes;
+    mapping(address => uint) public envelopesCountByOwner;
 
     event EnvelopeCreated(uint _id, address owner);
     event EnvelopeWithdrawn(uint _id, address owner);
@@ -29,16 +31,36 @@ contract Loyotos {
 
     constructor() {}
 
-    function createEnvelope(uint64 _lockEnd) external {
+    function createEnvelope(uint64 _lockEnd, string calldata _title) external {
         Envelope memory newEnvelope = Envelope(
             0,
-            payable(msg.sender),
             _lockEnd,
-            false
+            payable(msg.sender),
+            false,
+            _title
         );
         envelopes[envelopesCount] = newEnvelope;
         emit EnvelopeCreated(envelopesCount, msg.sender);
         ++envelopesCount;
+        envelopesCountByOwner[msg.sender]++;
+    }
+
+    function getEnvelopesByOwner(
+        address _owner
+    ) external view returns (Envelope[] memory ownerEnvelopes) {
+        uint totalCount = envelopesCount;
+        uint ownerCount = envelopesCountByOwner[_owner];
+        uint counter = 0;
+        Envelope[] memory _ownerEnvelopes = new Envelope[](ownerCount);
+
+        for (uint i; i < totalCount; i++) {
+            Envelope memory currentEnvelope = envelopes[i];
+            if (envelopes[i].owner == _owner) {
+                _ownerEnvelopes[counter] = currentEnvelope;
+                ++counter;
+            }
+        }
+        return _ownerEnvelopes;
     }
 
     function sendEthToEnvelope(uint _id) external payable {

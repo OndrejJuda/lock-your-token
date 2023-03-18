@@ -4,7 +4,8 @@ import { useAppDispatch, useAppSelector } from '@/hooks';
 import { Inter } from 'next/font/google';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { setEthereum } from '@/store/appSlice';
-import { getWeb3, CONTRACT_ADDRESS, getEnvelopes } from '@/utils';
+import { setEnvelopes } from '@/store/userSlice';
+import { connectHandler, getEnvelopes } from '@/utils';
 import { ethers } from 'ethers';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -12,6 +13,7 @@ const inter = Inter({ subsets: ['latin'] });
 export default function Home() {
   const dispatch = useAppDispatch();
   const { showNew, ethereum } = useAppSelector((state) => state.app);
+  const { address } = useAppSelector((state) => state.user);
 
   useEffect(() => {
     const ethereum: MetaMaskInpageProvider | undefined = window.ethereum;
@@ -20,17 +22,21 @@ export default function Home() {
 
   useEffect(() => {
     if (!ethereum) return;
-    console.log('\nuse effect with ethereum');
-    ethereum.on('accountsChanged', accountChangedHandler);
-
-    const { provider, contract } = getWeb3(ethereum as unknown as ethers.providers.ExternalProvider);
-
-    getEnvelopes(ethereum);
-    
-
-    return () => {
+    if (!address) {
+      (async () => {
+        await connectHandler(ethereum, dispatch);
+      })();
+      return;
     }
-  }, [ethereum]);
+    (async () => {
+      try {
+        const envelopes = await getEnvelopes(ethereum, address);
+        dispatch(setEnvelopes(envelopes));
+      } catch (error) {
+        console.log(error)
+      }
+    })();
+  }, [ethereum, address]);
 
   const accountChangedHandler = async (input: any) => {
     console.log('\naccounts changed');

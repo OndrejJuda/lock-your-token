@@ -3,7 +3,7 @@ import { WalletBar } from '.';
 
 const Header = () => {
   return (
-    <header className='flex justify-between items-center p-4'>
+    <header className='flex justify-between items-center p-4 pb-0'>
       <span className='text-5xl font-bold'>LO.YO.TOS</span>
       <WalletBar />
     </header>

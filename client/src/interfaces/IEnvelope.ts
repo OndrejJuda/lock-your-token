@@ -1,6 +1,7 @@
 export default interface IEnvelope {
   id: number;
-  name: string;
+  title: string;
   lockEnd: Date;
   amount: number;
+  isWithdrawn: boolean;
 }

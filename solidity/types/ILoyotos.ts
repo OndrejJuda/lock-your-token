@@ -68,6 +68,8 @@ export type ILoyotosMethodNames =
   | 'createEnvelope'
   | 'envelopes'
   | 'envelopesCount'
+  | 'envelopesCountByOwner'
+  | 'getEnvelopesByOwner'
   | 'sendEthToEnvelope'
   | 'withdraw';
 export interface EnvelopeCreatedEventEmittedResponse {
@@ -87,13 +89,27 @@ export interface FundsDepositedEventEmittedResponse {
 export interface EnvelopesResponse {
   weiAmount: BigNumber;
   0: BigNumber;
-  owner: string;
-  1: string;
   lockEnd: BigNumber;
-  2: BigNumber;
+  1: BigNumber;
+  owner: string;
+  2: string;
   isWithdrawn: boolean;
   3: boolean;
-  length: 4;
+  title: string;
+  4: string;
+  length: 5;
+}
+export interface OwnerEnvelopesResponse {
+  weiAmount: BigNumber;
+  0: BigNumber;
+  lockEnd: BigNumber;
+  1: BigNumber;
+  owner: string;
+  2: string;
+  isWithdrawn: boolean;
+  3: boolean;
+  title: string;
+  4: string;
 }
 export interface ILoyotos {
   /**
@@ -109,9 +125,11 @@ export interface ILoyotos {
    * StateMutability: nonpayable
    * Type: function
    * @param _lockEnd Type: uint64, Indexed: false
+   * @param _title Type: string, Indexed: false
    */
   createEnvelope(
     _lockEnd: BigNumberish,
+    _title: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -132,6 +150,28 @@ export interface ILoyotos {
    * Type: function
    */
   envelopesCount(overrides?: ContractCallOverrides): Promise<BigNumber>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param parameter0 Type: address, Indexed: false
+   */
+  envelopesCountByOwner(
+    parameter0: string,
+    overrides?: ContractCallOverrides
+  ): Promise<BigNumber>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param _owner Type: address, Indexed: false
+   */
+  getEnvelopesByOwner(
+    _owner: string,
+    overrides?: ContractCallOverrides
+  ): Promise<OwnerEnvelopesResponse[]>;
   /**
    * Payable: true
    * Constant: false

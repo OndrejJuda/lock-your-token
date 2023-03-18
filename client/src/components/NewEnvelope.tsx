@@ -1,13 +1,17 @@
 import React, { FC, useState, FormEvent, ChangeEvent } from 'react';
 import { Button, HeadingSecondary } from './';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { setShowNew } from '@/store/appSlice';
+import { createEnvelope, getEnvelopes } from '@/utils';
+import { setEnvelopes } from '@/store/userSlice';
 
 const NewEnvelope = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const dispatch = useAppDispatch();
+  const { ethereum } = useAppSelector((state) => state.app);
+  const { address } = useAppSelector((state) => state.user);
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -19,15 +23,16 @@ const NewEnvelope = () => {
 
   const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
+    if (!ethereum || !address) return;
     setIsLoading(true);
-    console.log('\nsubmit');
-
-    console.log('title:', title);
-    console.log('date:', date);
-    await sleep(3000);
-
-    clearState();
-    dispatch(setShowNew(false));
+    const seconds = +(new Date(date).getTime() / 1000).toFixed(0);
+    const response = await createEnvelope(ethereum, seconds, title);
+    if (response) {
+      clearState();
+      dispatch(setShowNew(false));
+      const envelopes = await getEnvelopes(ethereum, address);
+      dispatch(setEnvelopes(envelopes));
+    }
     setIsLoading(false);
   };
 

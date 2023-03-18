@@ -11,7 +11,15 @@ async function main() {
   const lockEnd = new Date().setSeconds(new Date().getSeconds() + waitSeconds);
   const lockEndSeconds = +(lockEnd / 1000).toFixed(0);
 
-  let transaction = await contract.connect(owner).createEnvelope(lockEndSeconds);
+  const envelopeId = 0;
+  const amountEth = 1.255587455;
+  const amountWei = ethers.utils.parseEther(amountEth.toString());
+  const title = 'Retirement';
+
+  let transaction = await contract.connect(owner).createEnvelope(lockEndSeconds, title);
+  await transaction.wait();
+  
+  transaction = await contract.sendEthToEnvelope(envelopeId, { value: amountWei });
   await transaction.wait();
 
   console.log('done');
