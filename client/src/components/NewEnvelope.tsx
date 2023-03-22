@@ -1,5 +1,5 @@
-import React, { FC, useState, FormEvent, ChangeEvent } from 'react';
-import { Button, HeadingSecondary } from './';
+import React, { useState, FormEvent, } from 'react';
+import { Button, Input, SidePane } from './';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { setShowNew } from '@/store/appSlice';
 import { createEnvelope, getEnvelopes } from '@/utils';
@@ -12,9 +12,6 @@ const NewEnvelope = () => {
   const dispatch = useAppDispatch();
   const { ethereum } = useAppSelector((state) => state.app);
   const { address } = useAppSelector((state) => state.user);
-
-  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 
   const clearState = () => {
     setTitle('');
@@ -37,48 +34,17 @@ const NewEnvelope = () => {
   };
 
   return (
-    <div className='w-[250px]'>
-      <HeadingSecondary>Create new envelope</HeadingSecondary>
-      {
-        isLoading
-          ? (
-            <div className='w-full flex justify-center'>
-              <div className='border-b w-32 h-32 rounded-full border-violet-300 animate-spin' />
-            </div>
-          )
-          : (
-            <form
-              className='flex flex-col gap-4'
-              onSubmit={submitHandler}
-            >
-              <Input id='title' title='Title' type='text' value={title} onChange={(e) => setTitle(e.target.value)} />
-              <Input id='date' title='Date' type='date' value={date} onChange={(e) => setDate(e.target.value)} />
-              <Button type='submit'>Add</Button>
-            </form>
-          )
-      }
-    </div>
+    <SidePane isLoading={isLoading} title='Create new envelope'>
+      <form
+        className='flex flex-col gap-4'
+        onSubmit={submitHandler}
+      >
+        <Input id='title' title='Title' type='text' value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Input id='date' title='Date' type='date' value={date} onChange={(e) => setDate(e.target.value)} />
+        <Button type='submit'>Add</Button>
+      </form>
+    </SidePane>
   );
 };
-
-const Input: FC<{ id: string, title: string, type: string, value?: string, onChange: (e: ChangeEvent<HTMLInputElement>) => void }> = ({ id, title, type, value, onChange }) => (
-  <div className='grid grid-cols-[50px_1fr]'>
-    <label
-      htmlFor={id}
-      className='text-lg'
-    >
-      {title}
-    </label>
-    <input
-      type={type}
-      name={id}
-      id={id}
-      className='flex-1 bg-violet-900 rounded-md px-2'
-      style={{ colorScheme: 'dark' }}
-      value={value}
-      onChange={onChange}
-    />
-  </div>
-);
 
 export default NewEnvelope;

@@ -1,7 +1,11 @@
 export { Button } from './Buttons';
+export { default as Deposit } from './Deposit';
 export { default as ExistingEnvelopes } from './ExistingEnvelopes';
 export { default as Header } from './Header';
 export { HeadingSecondary } from './Headings';
+export { Input } from './Inputs';
 export { default as Navbar } from './Navbar';
 export { default as NewEnvelope } from './NewEnvelope';
+export { default as SidePane } from './SidePane';
 export { default as WalletBar } from './WalletBar';
+export { default as Withdraw } from './Withdraw';

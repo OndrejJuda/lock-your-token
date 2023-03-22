@@ -5,6 +5,7 @@ import "../node_modules/hardhat/console.sol";
 
 contract Loyotos {
     struct Envelope {
+        uint256 id;
         uint256 weiAmount;
         uint64 lockEnd;
         address payable owner;
@@ -33,6 +34,7 @@ contract Loyotos {
 
     function createEnvelope(uint64 _lockEnd, string calldata _title) external {
         Envelope memory newEnvelope = Envelope(
+            envelopesCount,
             0,
             _lockEnd,
             payable(msg.sender),
@@ -40,9 +42,9 @@ contract Loyotos {
             _title
         );
         envelopes[envelopesCount] = newEnvelope;
-        emit EnvelopeCreated(envelopesCount, msg.sender);
         ++envelopesCount;
         envelopesCountByOwner[msg.sender]++;
+        emit EnvelopeCreated(envelopesCount, msg.sender);
     }
 
     function getEnvelopesByOwner(

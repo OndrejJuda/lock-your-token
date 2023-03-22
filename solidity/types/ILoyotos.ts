@@ -87,29 +87,33 @@ export interface FundsDepositedEventEmittedResponse {
   _totalAmount: BigNumberish;
 }
 export interface EnvelopesResponse {
-  weiAmount: BigNumber;
+  id: BigNumber;
   0: BigNumber;
-  lockEnd: BigNumber;
+  weiAmount: BigNumber;
   1: BigNumber;
+  lockEnd: BigNumber;
+  2: BigNumber;
   owner: string;
-  2: string;
+  3: string;
   isWithdrawn: boolean;
-  3: boolean;
+  4: boolean;
   title: string;
-  4: string;
-  length: 5;
+  5: string;
+  length: 6;
 }
 export interface OwnerEnvelopesResponse {
-  weiAmount: BigNumber;
+  id: BigNumber;
   0: BigNumber;
-  lockEnd: BigNumber;
+  weiAmount: BigNumber;
   1: BigNumber;
+  lockEnd: BigNumber;
+  2: BigNumber;
   owner: string;
-  2: string;
+  3: string;
   isWithdrawn: boolean;
-  3: boolean;
+  4: boolean;
   title: string;
-  4: string;
+  5: string;
 }
 export interface ILoyotos {
   /**

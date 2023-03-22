@@ -1,5 +1,5 @@
 export default interface IEnvelope {
-  id: number;
+  id: string;
   title: string;
   lockEnd: Date;
   amount: number;

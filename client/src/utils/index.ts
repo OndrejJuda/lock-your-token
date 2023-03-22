@@ -7,7 +7,7 @@ import { ContractContext } from '../../../solidity/types/ILoyotos';
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const CONTRACT_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+export const CONTRACT_ADDRESS = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853';
 const loyotosABI = loyotosJSON.abi;
 
 const getProvider = (ethereum: ethers.providers.ExternalProvider) => new ethers.providers.Web3Provider(ethereum);
@@ -31,9 +31,9 @@ export const getEnvelopes = async (ethereum: MetaMaskInpageProvider, address: st
   const signer = provider.getSigner();
   if (!contract) return [];
   const envelopes = await contract.connect(signer).getEnvelopesByOwner(address);
-  return envelopes?.map(({ isWithdrawn, lockEnd, title, weiAmount }, index): IEnvelope => ({
+  return envelopes?.map(({ isWithdrawn, lockEnd, title, weiAmount, id }, index): IEnvelope => ({
     amount: +ethers.utils.formatEther(weiAmount),
-    id: index,
+    id: id.toString(),
     lockEnd: new Date(+lockEnd.toString() * 1000),
     title,
     isWithdrawn,
@@ -72,5 +72,32 @@ export const connectHandler = async (ethereum: MetaMaskInpageProvider, dispatch:
     }
   } catch (error) {
 
+  }
+}
+
+export const depositToEnvelope = async (ethereum: MetaMaskInpageProvider, id: string, amount: number): Promise<boolean> => {
+  try {
+    const { provider, contract } = getWeb3(ethereum);
+    const signer = provider.getSigner();
+    if (!contract) return false;
+    const weiAmount = ethers.utils.parseEther(amount.toString());
+    const transaction = await contract.connect(signer).sendEthToEnvelope(id, {value: weiAmount});
+    await transaction.wait();
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const withdraw = async (ethereum: MetaMaskInpageProvider, id: string): Promise<boolean> => {
+  try {
+    const { provider, contract } = getWeb3(ethereum);
+    const signer = provider.getSigner();
+    if (!contract) return false;
+    const transaction = await contract.connect(signer).withdraw(id);
+    await transaction.wait();
+    return true;
+  } catch (error) {
+    return false;
   }
 }
