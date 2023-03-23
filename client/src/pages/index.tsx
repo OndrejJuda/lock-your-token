@@ -17,16 +17,13 @@ export default function Home() {
   useEffect(() => {
     const ethereum: MetaMaskInpageProvider | undefined = window.ethereum;
     dispatch(setEthereum(ethereum && ethereum.isMetaMask ? ethereum : null));
+    if (ethereum) {
+      ethereum?.on('accountsChanged', (accounts: any) => accountChangedHandler(ethereum, accounts));
+    }
   }, []);
 
   useEffect(() => {
-    if (!ethereum) return;
-    if (!address) {
-      (async () => {
-        await connectHandler(ethereum, dispatch);
-      })();
-      return;
-    }
+    if (!ethereum || !address) return;
     (async () => {
       try {
         const envelopes = await getEnvelopes(ethereum, address);
@@ -37,13 +34,7 @@ export default function Home() {
     })();
   }, [ethereum, address]);
 
-  const accountChangedHandler = async (input: any) => {
-    console.log('\naccounts changed');
-
-    const accounts = input as string[];
-    console.log('accounts:', accounts);
-    console.log(process.env.NEXT_PUBLIC_LOYOTOS_CONTRACT_ADDRESS);
-  }
+  const accountChangedHandler = async (ethereum: MetaMaskInpageProvider, input: any) => connectHandler(ethereum, dispatch);
 
   return (
     <div className='bg-slate-900 text-violet-50 min-h-screen max-h-screen flex flex-col relative'>

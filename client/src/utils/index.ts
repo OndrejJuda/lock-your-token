@@ -7,7 +7,10 @@ import { ContractContext } from '../../../solidity/types/ILoyotos';
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_LOYOTOS_CONTRACT_ADDRESS;
+export const IS_LOCAL = process.env.NEXT_PUBLIC_IS_LOCAL === 'true';
+export const CONTRACT_ADDRESS = IS_LOCAL
+  ? process.env.NEXT_PUBLIC_LOYOTOS_CONTRACT_ADDRESS_LOCAL
+  : process.env.NEXT_PUBLIC_LOYOTOS_CONTRACT_ADDRESS;
 const loyotosABI = loyotosJSON.abi;
 
 const getProvider = (ethereum: ethers.providers.ExternalProvider) => new ethers.providers.Web3Provider(ethereum);
@@ -53,9 +56,47 @@ export const createEnvelope = async (ethereum: MetaMaskInpageProvider, lockEnd: 
   }
 }
 
+const chainHandler = async (ethereum: MetaMaskInpageProvider) => {
+  const currentChainId = await ethereum.request({ method: 'eth_chainId' }) as string;
+  let desiredChainId: string;
+  if (IS_LOCAL) {
+    desiredChainId = composeChainId(process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID ?? '');
+  } else {
+    desiredChainId = composeChainId(process.env.NEXT_PUBLIC_GOERLI_CHAIN_ID ?? '');
+  }
+  if (desiredChainId !== currentChainId) {
+    try {
+      await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: desiredChainId }] });
+    } catch (error: any) {
+      console.log(error);
+      if (error.code === 4902) {
+        try {
+          await ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: desiredChainId,
+              chainName: 'Hardhat Local',
+              nativeCurrency: {
+                name: 'Ether',
+                symbol: 'ETH',
+                decimals: 18
+              },
+              rpcUrls: ['http://127.0.0.1:8545'],
+              blockExplorerUrls: null,
+              iconUrls: null,
+            }],
+          });
+        } catch (error) {
+        }
+      }
+    }
+  }
+};
+
 // TODO: fix dispatch type
 export const connectHandler = async (ethereum: MetaMaskInpageProvider, dispatch: any) => {
   try {
+    await chainHandler(ethereum);
     await ethereum?.request({ method: 'eth_requestAccounts' });
     const accounts = await ethereum?.request({ method: 'eth_accounts' });
     let account: string | undefined;
@@ -81,7 +122,7 @@ export const depositToEnvelope = async (ethereum: MetaMaskInpageProvider, id: st
     const signer = provider.getSigner();
     if (!contract) return false;
     const weiAmount = ethers.utils.parseEther(amount.toString());
-    const transaction = await contract.connect(signer).sendEthToEnvelope(id, {value: weiAmount});
+    const transaction = await contract.connect(signer).sendEthToEnvelope(id, { value: weiAmount });
     await transaction.wait();
     return true;
   } catch (error) {
@@ -101,3 +142,5 @@ export const withdraw = async (ethereum: MetaMaskInpageProvider, id: string): Pr
     return false;
   }
 }
+
+export const composeChainId = (id: string) => `0x${id}`;
