@@ -3,7 +3,7 @@ import { setAddress } from "@/store/userSlice";
 import { MetaMaskInpageProvider } from "@metamask/providers";
 import { ethers } from "ethers";
 import loyotosJSON from '../../../solidity/artifacts/contracts/Loyotos.sol/Loyotos.json';
-import { ContractContext } from '../../../solidity/types/ILoyotos';
+import { ContractContext } from '../../contractTypes/ILoyotos';
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

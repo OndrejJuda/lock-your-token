@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generateContractType": "abi-types-generator ./artifacts/contracts/Loyotos.sol/Loyotos.json --output='./types' --name=ILoyotos --provider=ethers_v5"
+    "generateContractType": "abi-types-generator ./artifacts/contracts/Loyotos.sol/Loyotos.json --output='../client/contractTypes' --name=ILoyotos --provider=ethers_v5"
   },
   "keywords": [],
   "author": "",
