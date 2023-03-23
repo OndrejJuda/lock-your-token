@@ -2,7 +2,8 @@ import { IEnvelope } from "@/interfaces";
 import { setAddress } from "@/store/userSlice";
 import { MetaMaskInpageProvider } from "@metamask/providers";
 import { ethers } from "ethers";
-import loyotosJSON from '../../../solidity/artifacts/contracts/Loyotos.sol/Loyotos.json';
+// This is generated elswhere, don't forget to update it when changing contract
+import loyotosJSON from '../../contractTypes/Loyotos.json';
 import { ContractContext } from '../../contractTypes/ILoyotos';
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
